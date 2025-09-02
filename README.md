@@ -158,3 +158,13 @@ REACT_APP_API_URL=http://localhost:5000
 If you encounter issues:
 - Check the browser console for frontend errors
 - Check the terminal for backend errors
+
+### Diagram & Design
+
+## Diagram of the work flow of application
+![alt text](./job_portal_flow.png)
+---
+## Figma Designs of the Frontend
+![alt text](./jobs.png)
+---
+![alt text](./form.png)
