@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DB_HOST = 'localhost'
 DB_USER = 'root'
 DB_PASSWORD = 'root'
-DB_NAME = 'actuary_jobs_db'
+DB_NAME = 'actuary_jobs_dbb'
 
 JOBS_URL = "https://www.actuarylist.com"
 
