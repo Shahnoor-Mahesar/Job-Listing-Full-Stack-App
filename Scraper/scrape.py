@@ -12,10 +12,10 @@ import mysql.connector
 from datetime import datetime, timedelta
 import calendar
 
-# Setup logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Database connection details
+# Database connection
 DB_HOST = 'localhost'
 DB_USER = 'root'
 DB_PASSWORD = 'root'
@@ -30,7 +30,7 @@ def setup_database():
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
         conn.database = DB_NAME
         
-        # Updated table schema with DATE type for posting_date
+        
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS jobs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +88,7 @@ def convert_relative_date(relative_date):
     if not relative_date:
         return datetime.now().strftime('%Y-%m-%d')
     
-    # Extract the number and unit
+    
     match = re.match(r'(\d+)\s*([dhmy])\s*ago', relative_date.lower())
     if not match:
         return datetime.now().strftime('%Y-%m-%d')
@@ -96,23 +96,23 @@ def convert_relative_date(relative_date):
     number, unit = match.groups()
     number = int(number)
     
-    # Get current date
+    
     current_date = datetime.now()
     
-    # Calculate the actual date based on the unit
+   
     if unit == 'd':  # days
         result_date = current_date - timedelta(days=number)
     elif unit == 'h':  # hours
         result_date = current_date - timedelta(hours=number)
     elif unit == 'm':  # months
-        # For months, we need to handle varying month lengths
+        
         month = current_date.month - number
         year = current_date.year
         while month <= 0:
             month += 12
             year -= 1
         
-        # Get the last day of the target month
+        
         _, last_day = calendar.monthrange(year, month)
         day = min(current_date.day, last_day)
         
@@ -127,11 +127,11 @@ def convert_relative_date(relative_date):
 def scrape_job_details(driver, url):
     """Scrape job details from a job posting page."""
     try:
-        # Navigate to job page
+        
         driver.execute_script("window.location.href = arguments[0];", url)
         WebDriverWait(driver, 20).until(EC.url_contains("/actuarial-jobs/"))
         
-        # Handle multiple windows
+        
         if len(driver.window_handles) > 1:
             driver.switch_to.window(driver.window_handles[0])
             for handle in driver.window_handles[1:]:
@@ -172,15 +172,15 @@ def scrape_job_details(driver, url):
             tags_str = ', '.join(tags)
 
         job_id = extract_job_id(url)
-        job_type = 'Full-Time'  # Fixed as per requirement
+        job_type = 'Full-Time'  
 
         return {
             'title': job_title,
             'company': company,
             'city': city,
             'country': country,
-            'posting_date': posting_date_actual,  # Now using the actual date
-            'posting_date_relative': posting_date_relative,  # Keeping the original for reference
+            'posting_date': posting_date_actual,  
+            'posting_date_relative': posting_date_relative,  
             'job_type': job_type,
             'tags': tags_str,
             'link': url,
@@ -204,7 +204,7 @@ def save_job_to_db(cursor, conn, job_data):
             job_data['company'],
             job_data['city'],
             job_data['country'],
-            job_data['posting_date'],  # Now using the actual date
+            job_data['posting_date'], 
             job_data['job_type'],
             job_data['tags'],
             job_data['link'],
@@ -226,7 +226,7 @@ def wait_for_job_cards(driver, max_attempts=3, wait_time=10):
             if len(cards) > 0:
                 return cards
             logging.info(f"No job cards found on attempt {attempt + 1}. Retrying...")
-            time.sleep(5)  # Additional wait before retry
+            time.sleep(5)  
         except:
             logging.info(f"Attempt {attempt + 1} failed to find job section. Retrying...")
             time.sleep(5)
@@ -245,7 +245,7 @@ def main():
     driver = setup_driver()
 
     try:
-        # Navigate to base URL and prevent popup
+        
         driver.get(JOBS_URL)
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         driver.execute_script("localStorage.setItem('showPopupForm', 'false');")
@@ -253,7 +253,7 @@ def main():
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         handle_popup(driver)
 
-        # Navigate to jobs page (page 1)
+        
         driver.get(get_page_url(1))
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         with open("page_source.html", "w", encoding="utf-8") as f:
@@ -261,18 +261,18 @@ def main():
         logging.info("Saved page source to page_source.html")
 
         page = 1
-        max_pages = 5  # Limit for demo
+        max_pages = 5  
 
         while page <= max_pages:
             logging.info(f"Scraping page {page}")
             try:
-                # Ensure correct URL
+               
                 if driver.current_url != get_page_url(page):
                     logging.warning(f"Unexpected URL: {driver.current_url}. Navigating to {get_page_url(page)}")
                     driver.get(get_page_url(page))
                     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-                # Wait for job cards
+                
                 cards = wait_for_job_cards(driver)
                 logging.info(f"Found {len(cards)} job cards on page {page}")
 
@@ -282,7 +282,7 @@ def main():
 
                 for idx in range(len(cards)):
                     try:
-                        # Re-fetch cards to avoid stale elements
+                        
                         section = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.CSS_SELECTOR, "section.Job_grid-section__kgIsR"))
                         )
@@ -300,11 +300,11 @@ def main():
                             continue
                         logging.info(f"Processing job link: {link}")
 
-                        # Scrape job details
+                        
                         job_data = scrape_job_details(driver, link)
                         save_job_to_db(cursor, conn, job_data)
 
-                        # Navigate back to current page
+                        
                         driver.get(get_page_url(page))
                         WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.CSS_SELECTOR, "section.Job_grid-section__kgIsR"))
@@ -328,13 +328,13 @@ def main():
                             logging.error("Failed to return to listings page. Continuing to next job.")
                         continue
 
-                # Next page
+                
                 try:
                     next_button = WebDriverWait(driver, 10).until(
                         EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Next')]"))
                     )
                     driver.execute_script("arguments[0].click();", next_button)
-                    time.sleep(10)  # Increased wait for page load
+                    time.sleep(10)  
                     WebDriverWait(driver, 20).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, "section.Job_grid-section__kgIsR"))
                     )

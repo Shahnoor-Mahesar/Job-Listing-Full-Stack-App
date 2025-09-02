@@ -11,7 +11,7 @@ job_bp = Blueprint('jobs', __name__)
 
 # Marshmallow Schema for Job Validation (Input/Output)
 class JobSchema(Schema):
-    # Include id in the output
+    
     id = fields.Integer(dump_only=True)
     title = fields.String(required=True, validate=lambda x: len(x.strip()) > 0,
                           error_messages={"required": "Title is required", "invalid": "Title cannot be empty"})
@@ -20,9 +20,9 @@ class JobSchema(Schema):
     city = fields.String(required=True, validate=lambda x: len(x.strip()) > 0,
                          error_messages={"required": "City is required", "invalid": "City cannot be empty"})
     country = fields.String(allow_none=True)
-    posting_date = fields.Date(allow_none=True,format='%Y-%m-%d')  # Changed from String to Date
+    posting_date = fields.Date(allow_none=True,format='%Y-%m-%d')  
     job_type = fields.String(allow_none=True)
-    tags = fields.Raw(allow_none=True)  # Can be list or string
+    tags = fields.Raw(allow_none=True)  
     job_id = fields.String(dump_only=True)
 
     @validates('job_type')
@@ -118,7 +118,7 @@ def create_job():
         # Validate and deserialize input
         result = job_schema.load(data)
 
-        # Auto-generate job_id
+        
         result['job_id'] = str(uuid.uuid4())
 
         job = Job(**result)

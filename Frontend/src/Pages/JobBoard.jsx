@@ -1,14 +1,14 @@
 import React from 'react';
 
 const JobBoard = ({ jobs, onEdit, onDelete, pagination, onPageChange }) => {
-  // Ensure jobs is always an array
+ 
   const safeJobs = Array.isArray(jobs) ? jobs : [];
   
-  // Function to render tags in the specified format
+  
   const renderTags = (tagsString) => {
     if (!tagsString) return null;
     
-    // Handle both string and array formats
+    
     const tags = typeof tagsString === 'string' ? tagsString.split(',') : tagsString;
     const cleanedTags = tags.map(tag => tag.trim()).filter(tag => tag !== '');
     
@@ -24,7 +24,7 @@ const JobBoard = ({ jobs, onEdit, onDelete, pagination, onPageChange }) => {
       );
     }
     
-    // For more than 3 tags, split into two rows with max 3 tags each
+    // For more than 3 tags,
     const firstRow = cleanedTags.slice(0, 3);
     const secondRow = cleanedTags.slice(3, 6);
     
@@ -50,30 +50,30 @@ const JobBoard = ({ jobs, onEdit, onDelete, pagination, onPageChange }) => {
     );
   };
 
-  // Generate page numbers for pagination
+  
   const generatePageNumbers = () => {
     const { page, totalPages } = pagination;
     const pages = [];
     
-    // Always show first page
+    
     pages.push(1);
     
-    // Show ellipsis if needed
+    
     if (page > 3) {
       pages.push('...');
     }
     
-    // Show current page and neighbors
+    
     for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
       pages.push(i);
     }
     
-    // Show ellipsis if needed
+    
     if (page < totalPages - 2) {
       pages.push('...');
     }
     
-    // Always show last page if there is more than one page
+    
     if (totalPages > 1) {
       pages.push(totalPages);
     }

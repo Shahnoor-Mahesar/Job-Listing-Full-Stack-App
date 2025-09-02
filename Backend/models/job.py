@@ -9,7 +9,7 @@ class Job(db.Model):
     company = db.Column(db.String(255))
     city = db.Column(db.String(255))
     country = db.Column(db.String(255))
-    posting_date = db.Column(db.Date)  # Changed from String to Date
+    posting_date = db.Column(db.Date)  
     job_type = db.Column(db.String(255), default='Full-Time')
     tags = db.Column(db.Text)
     link = db.Column(db.String(255))
